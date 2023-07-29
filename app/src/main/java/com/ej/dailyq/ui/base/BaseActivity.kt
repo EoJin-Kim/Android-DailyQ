@@ -2,8 +2,10 @@ package com.ej.dailyq.ui.base
 
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.ej.dailyq.api.ApiService
 
 abstract class BaseActivity : AppCompatActivity() {
+    val api: ApiService by lazy { ApiService.getInstance() }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
