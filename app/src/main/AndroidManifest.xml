@@ -12,14 +12,22 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.DailyQ">
+
         <activity
-            android:name="com.ej.dailyq.ui.main.MainActivity"
+            android:name="com.ej.dailyq.ui.splash.SplashActivity"
+            android:theme="@style/Theme.DailyQ.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ej.dailyq.ui.main.MainActivity">
+
+        </activity>
+        <activity
+            android:name="com.ej.dailyq.ui.login.LoginActivity" >
         </activity>
 
         <activity
