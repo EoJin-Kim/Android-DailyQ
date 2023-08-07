@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import coil.load
 import com.ej.dailyq.R
 import com.ej.dailyq.api.response.HelloWorld
 import com.ej.dailyq.api.response.Question
 import com.ej.dailyq.databinding.FragmentTodayBinding
 import com.ej.dailyq.ui.base.BaseFragment
+import com.ej.dailyq.ui.image.ImageViewerActivity
 import com.ej.dailyq.ui.write.WriteActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -113,6 +115,18 @@ class TodayFragment : BaseFragment() {
         binding.textAnswer.text = answer?.text
 
         binding.writeButton.isVisible = answer == null
+
+        binding.photoAnswer.isVisible = !answer?.photo.isNullOrEmpty()
+        answer?.photo?.let {
+            binding.photoAnswer.load(it) {
+                placeholder(R.drawable.ph_image)
+            }
+            binding.photoAnswer.setOnClickListener {
+                startActivity(Intent(requireContext(), ImageViewerActivity::class.java).apply {
+                    putExtra(ImageViewerActivity.EXTRA_URL, answer.photo)
+                })
+            }
+        }
     }
 
 }

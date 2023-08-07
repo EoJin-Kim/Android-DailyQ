@@ -1,16 +1,25 @@
 package com.ej.dailyq.ui.write
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import coil.load
+import coil.transform.RoundedCornersTransformation
 import com.ej.dailyq.R
+import com.ej.dailyq.api.asRequestBody
 import com.ej.dailyq.api.response.Answer
 import com.ej.dailyq.api.response.Question
 import com.ej.dailyq.databinding.ActivityWriteBinding
 import com.ej.dailyq.ui.base.BaseActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -29,6 +38,29 @@ class WriteActivity : BaseActivity() {
 
     lateinit var question: Question
     var answer: Answer? = null
+    var imageUrl: String? = null
+
+    val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                lifecycleScope.launch {
+                    val imageUri = result.data?.data ?: return@launch
+                    val requestBody = imageUri.asRequestBody(contentResolver)
+
+                    val part = MultipartBody.Part.createFormData("image", "filename", requestBody)
+                    val imageResponse = api.uploadImage(part)
+
+                    if (imageResponse.isSuccessful) {
+                        imageUrl = imageResponse.body()!!.url
+
+                        binding.photo.load(imageUrl) {
+                            transformations(RoundedCornersTransformation(resources.getDimension(R.dimen.thumbnail_rounded_corner)))
+                        }
+                        binding.photoArea.isVisible = true
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +70,8 @@ class WriteActivity : BaseActivity() {
         val qid = intent.getSerializableExtra(EXTRA_QID) as LocalDate
         mode = intent?.getSerializableExtra(EXTRA_MODE)!! as Mode
 
-        supportActionBar?.title = DateTimeFormatter.ofPattern(getString(R.string.date_format)).format(qid)
+        supportActionBar?.title =
+            DateTimeFormatter.ofPattern(getString(R.string.date_format)).format(qid)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         lifecycleScope.launch {
@@ -47,6 +80,19 @@ class WriteActivity : BaseActivity() {
 
             binding.question.text = question.text
             binding.answer.setText(answer?.text)
+
+            imageUrl = answer?.photo
+            binding.photoArea.isVisible = !imageUrl.isNullOrEmpty()
+
+            imageUrl?.let {
+                binding.photo.load(it) {
+                    transformations(RoundedCornersTransformation(resources.getDimension(R.dimen.thumbnail_rounded_corner)))
+                }
+            }
+        }
+
+        binding.photoArea.setOnClickListener {
+            showDeleteConfirmDialog()
         }
     }
 
@@ -61,18 +107,26 @@ class WriteActivity : BaseActivity() {
                 write()
                 return true
             }
+            R.id.add_photo -> {
+                startForResult.launch(
+                    Intent(Intent.ACTION_GET_CONTENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "image/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/png"))
+                    })
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
-
 
     fun write() {
         val text = binding.answer.text.toString().trimEnd()
         lifecycleScope.launch {
             val answerResponse = if (answer == null) {
-                api.writeAnswer(question.id, text)
+                api.writeAnswer(question.id, text, imageUrl)
             } else {
-                api.editAnswer(question.id, text)
+                api.editAnswer(question.id, text, imageUrl)
             }
             if (answerResponse.isSuccessful) {
                 setResult(RESULT_OK)
@@ -85,6 +139,18 @@ class WriteActivity : BaseActivity() {
                 ).show()
             }
         }
+    }
+
+    fun showDeleteConfirmDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setMessage(R.string.dialog_msg_are_you_sure_to_delete)
+            .setPositiveButton(android.R.string.ok) { dialog, which ->
+                binding.photo.setImageResource(0)
+                binding.photoArea.isVisible = false
+                imageUrl = null
+            }.setNegativeButton(android.R.string.cancel) { dialog, which ->
+
+            }.show()
     }
 }
 

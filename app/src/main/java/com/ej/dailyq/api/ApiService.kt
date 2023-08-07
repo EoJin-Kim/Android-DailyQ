@@ -6,9 +6,11 @@ import com.ej.dailyq.api.adapter.LocalDateAdapter
 import com.ej.dailyq.api.converter.LocalDateConverterFactory
 import com.ej.dailyq.api.response.Answer
 import com.ej.dailyq.api.response.AuthToken
+import com.ej.dailyq.api.response.Image
 import com.ej.dailyq.api.response.Question
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -41,7 +43,7 @@ interface ApiService {
                 .build()
         }
 
-        private fun create(context: Context): ApiService {
+        fun create(context: Context): ApiService {
             val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter)
@@ -50,7 +52,7 @@ interface ApiService {
             return Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addConverterFactory(LocalDateConverterFactory())
-                .baseUrl("http://211.213.71.208:5000")
+                .baseUrl("http://10.0.2.2:5000")
                 .client(okHttpClient())
                 .build()
                 .create(ApiService::class.java)
@@ -107,12 +109,19 @@ interface ApiService {
         @Path("qid") qid: LocalDate,
         @Field("text") text: String? = null,
         @Field("photo") photo: String? = null,
-        @Path("uid") uid: String? =  AuthManager.uid
+        @Path("uid") uid: String? = AuthManager.uid
     ): Response<Answer>
 
     @DELETE("/v2/questions/{qid}/answers/{uid}")
     suspend fun deleteAnswer(
         @Path("qid") qid: LocalDate,
-        @Path("uid") uid: String? =  AuthManager.uid
+        @Path("uid") uid: String? = AuthManager.uid
     ): Response<Unit>
+
+    @Multipart
+    @POST("/v2/images")
+    suspend fun uploadImage(
+        @Part image: MultipartBody.Part,
+    ): Response<Image>
+
 }

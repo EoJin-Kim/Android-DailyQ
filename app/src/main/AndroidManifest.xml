@@ -35,6 +35,13 @@
             android:windowSoftInputMode="adjustResize">
 
         </activity>
+
+        <activity
+            android:theme="@style/Theme.DailyQ.ImageViewer"
+            android:label=""
+            android:name="com.ej.dailyq.ui.image.ImageViewerActivity" >
+
+        </activity>
     </application>
 
 </manifest>

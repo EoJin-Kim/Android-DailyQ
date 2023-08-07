@@ -20,8 +20,7 @@ class TokenRefreshAuthenticator() : Authenticator {
 
         synchronized(this) {
             if (accessToken == AuthManager.accessToken) {
-                val authTokenResponse =
-                    api.refreshToken(AuthManager.refreshToken!!).execute().body()!!
+                val authTokenResponse = api.refreshToken(AuthManager.refreshToken!!).execute().body()!!
 
                 AuthManager.accessToken = authTokenResponse.accessToken
                 AuthManager.refreshToken = authTokenResponse.refreshToken

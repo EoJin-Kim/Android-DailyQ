@@ -88,7 +88,7 @@ class LoginActivity : BaseActivity() {
                     AuthManager.accessToken = authToken?.accessToken
                     AuthManager.refreshToken = authToken?.refreshToken
 
-                               startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
                 } else {
                     binding.progress.isVisible = false
