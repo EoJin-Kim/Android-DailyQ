@@ -10,6 +10,7 @@ import com.ej.dailyq.api.response.Image
 import com.ej.dailyq.api.response.Question
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import okhttp3.Cache
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,11 +28,14 @@ interface ApiService {
     companion object {
         private var INSTANCE: ApiService? = null
 
-        private fun okHttpClient(): OkHttpClient {
+        private fun okHttpClient(context : Context): OkHttpClient {
             val builder = OkHttpClient.Builder()
 
             val logging = HttpLoggingInterceptor()
             logging.level = HttpLoggingInterceptor.Level.BODY
+
+            val cacheSize = 5 * 1024 * 1024L // 5 MB
+            val cache = Cache(context.cacheDir, cacheSize)
 
             return builder
                 .connectTimeout(3, TimeUnit.SECONDS)
@@ -40,6 +44,8 @@ interface ApiService {
                 .addInterceptor(AuthInterceptor())
                 .authenticator(TokenRefreshAuthenticator())
                 .addInterceptor(logging)
+                .addInterceptor(EndpointLoggingInterceptor("AppInterceptor", "answers"))
+                .addNetworkInterceptor(EndpointLoggingInterceptor("NetworkInterceptor", "answers"))
                 .build()
         }
 
@@ -53,7 +59,7 @@ interface ApiService {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addConverterFactory(LocalDateConverterFactory())
                 .baseUrl("http://10.0.2.2:5000")
-                .client(okHttpClient())
+                .client(okHttpClient(context))
                 .build()
                 .create(ApiService::class.java)
         }
@@ -94,6 +100,11 @@ interface ApiService {
     suspend fun getQuestion(
         @Path("qid") qid: LocalDate
     ): Response<Question>
+
+    @GET("/v2/questions/{qid}/answers")
+    suspend fun getAnswers(
+        @Path("qid") qid: LocalDate
+    ): Response<List<Answer>>
 
     @GET("/v2/questions/{qid}/answers/{uid}")
     suspend fun getAnswer(

@@ -1,9 +1,11 @@
 package com.ej.dailyq.ui.timeline
 
+import android.content.Intent
 import androidx.recyclerview.widget.RecyclerView
 import com.ej.dailyq.R
 import com.ej.dailyq.api.response.Question
 import com.ej.dailyq.databinding.ItemTimelineCardBinding
+import com.ej.dailyq.ui.details.DetailsActivity
 
 import java.time.format.DateTimeFormatter
 
@@ -25,7 +27,11 @@ class TimelineCardViewHolder(val binding: ItemTimelineCardBinding) :
         }
 
         binding.card.setOnClickListener {
-            // TODO 상세 화면으로 이동
+            val context = binding.root.context
+
+            context.startActivity(Intent(context, DetailsActivity::class.java).apply {
+                putExtra(DetailsActivity.EXTRA_QID, question.id)
+            })
         }
     }
 }
