@@ -37,7 +37,7 @@
         </activity>
 
         <activity
-            android:name=".ui.details.DetailsActivity" >
+            android:name="com.ej.dailyq.ui.details.DetailsActivity" >
 
         </activity>
 
@@ -45,6 +45,10 @@
             android:theme="@style/Theme.DailyQ.ImageViewer"
             android:label=""
             android:name="com.ej.dailyq.ui.image.ImageViewerActivity" >
+
+        </activity>
+        <activity
+            android:name="com.ej.dailyq.ui.profile.ProfileActivity" >
 
         </activity>
     </application>

@@ -7,22 +7,23 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.ej.dailyq.api.response.Question
 import com.ej.dailyq.databinding.ItemTimelineCardBinding
+import com.ej.dailyq.db.entity.QuestionEntity
 
 
 class TimelineAdapter(val context: Context) :
-    PagingDataAdapter<Question, TimelineCardViewHolder>(QuestionComparator) {
+    PagingDataAdapter<QuestionEntity, TimelineCardViewHolder>(QuestionComparator) {
 
-    object QuestionComparator: DiffUtil.ItemCallback<Question>() {
+    object QuestionComparator: DiffUtil.ItemCallback<QuestionEntity>() {
         override fun areItemsTheSame(
-            oldItem: Question,
-            newItem: Question
+            oldItem: QuestionEntity,
+            newItem: QuestionEntity
         ): Boolean {
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(
-            oldItem: Question,
-            newItem: Question
+            oldItem: QuestionEntity,
+            newItem: QuestionEntity
         ): Boolean {
             return oldItem == newItem
         }

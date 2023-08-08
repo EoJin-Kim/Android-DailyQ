@@ -4,10 +4,7 @@ import android.content.Context
 import com.ej.dailyq.AuthManager
 import com.ej.dailyq.api.adapter.LocalDateAdapter
 import com.ej.dailyq.api.converter.LocalDateConverterFactory
-import com.ej.dailyq.api.response.Answer
-import com.ej.dailyq.api.response.AuthToken
-import com.ej.dailyq.api.response.Image
-import com.ej.dailyq.api.response.Question
+import com.ej.dailyq.api.response.*
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import okhttp3.Cache
@@ -140,5 +137,25 @@ interface ApiService {
     suspend fun uploadImage(
         @Part image: MultipartBody.Part,
     ): Response<Image>
+
+
+    @GET("/v2/users/{uid}")
+    suspend fun getUser(
+        @Path("uid") uid: String
+    ): Response<User>
+
+    @POST("/v2/user/following/{uid}")
+    suspend fun follow(@Path("uid") uid: String): Response<Unit>
+
+    @DELETE("/v2/user/following/{uid}")
+    suspend fun unfollow(
+        @Path("uid") uid: String,
+    ): Response<Unit>
+
+    @GET("/v2/users/{uid}/answers")
+    suspend fun getUserAnswers(
+        @Path("uid") uid: String,
+        @Query("from_date") fromDate: LocalDate? = null
+    ): Response<List<QuestionAndAnswer>>
 
 }
