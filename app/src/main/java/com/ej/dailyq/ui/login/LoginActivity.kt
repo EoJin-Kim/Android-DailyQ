@@ -12,7 +12,9 @@ import com.ej.dailyq.R
 import com.ej.dailyq.databinding.ActivityLoginBinding
 import com.ej.dailyq.ui.base.BaseActivity
 import com.ej.dailyq.ui.main.MainActivity
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class LoginActivity : BaseActivity() {
@@ -88,14 +90,17 @@ class LoginActivity : BaseActivity() {
                     AuthManager.accessToken = authToken?.accessToken
                     AuthManager.refreshToken = authToken?.refreshToken
 
+                    val messagingToken = FirebaseMessaging.getInstance().token.await()
+                    api.registerPushToken(messagingToken)
+
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
                 } else {
                     binding.progress.isVisible = false
                     Toast.makeText(
-this@LoginActivity,
-                        R.string.error_login_failed,
-                        Toast.LENGTH_SHORT
+            this@LoginActivity,
+                    R.string.error_login_failed,
+                    Toast.LENGTH_SHORT
                     ).show()
                 }
             }

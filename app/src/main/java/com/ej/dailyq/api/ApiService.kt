@@ -87,6 +87,13 @@ interface ApiService {
         @Tag authType: AuthType = AuthType.NO_AUTH
     ): Call<AuthToken>
 
+    @FormUrlEncoded
+    @POST("/v2/user/push-tokens")
+    suspend fun registerPushToken(
+        @Field("token") pushToken: String
+    ): Response<Unit>
+
+
     @GET("/v2/questions")
     suspend fun getQuestions(
         @Query("from_date") fromDate: LocalDate,

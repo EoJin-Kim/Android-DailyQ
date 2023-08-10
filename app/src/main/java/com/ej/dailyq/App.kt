@@ -10,5 +10,6 @@ class App : Application() {
         super.onCreate()
         AuthManager.init(this)
         ApiService.init(this)
+        Notifier.init(this)
     }
 }
